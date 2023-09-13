@@ -1,11 +1,10 @@
 """
 Amit Landge
-2023-07-23
 
 Goal -
-To numerically simulate the behaviour of the AHL6 sensor circuit, implmented in E. coli.
-In E. coli this circuit has produce AHL6-dose dependent output of fluorescence reporter GFP.
 
+Assumpations -
+1.
 """
 
 # import necessary packages
@@ -13,6 +12,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import time
 import argparse
 import os
@@ -21,37 +21,27 @@ from datetime import datetime
 import copy
 from fipy import *
 import pandas as pd
-from matplotlib import cm
 from scipy.optimize import curve_fit
 import seaborn as sns
 
 
 # define functions
 class RD_simulate(object):
-    """
-    This class contains methods to
-    1. initiate the parameters for the reaction-diffusion system.
-    2. define the reaction-diffusion PDEs
-    3. numerically solve the PDEs
-    4. analyze the results - make time-series plots, space-time plots, dose-response plots.
-    """
+    """docstring for RD_simulate."""
 
-    def __init__(self, nx, dx, dt, steps, vNames, resultPath, ahl6List):
-        """
-        The init method.
-        """
+    def __init__(self, nx, dx, dt, steps, vNames, resultPath, araList):
         super(RD_simulate, self).__init__()
         self.mesh= Grid1D(nx = nx, dx = dx)
         self.nx = nx
         self.dx = dx
         self.steps = steps
         self.dt = dt
-        self.tAx = [i*dt for i in range(steps+2)]
         self.resultPath = resultPath
         self.vNames = vNames
         self.nodeN = len(vNames)
         self.doseRes = {}
-        self.ahl6List = ahl6List
+        self.tAx = [i*dt for i in range(steps+2)]
+        self.araList = araList
 
     def hillF(self,x,y,Kt, n = 2, k_leak = 0.01):
         """
@@ -60,22 +50,22 @@ class RD_simulate(object):
         return x*(k_leak + y**n/(Kt**n + y**n))
 
     def makeModel(self,y0,rates,D6):
-        """
-        method to define PDEs, initial and boundary conditions
-        """
         #unpack rates
-        k_gfp, kd_ssrA, k_luxR, kd_luxR, K_T, nH, k_leak, ahl6  = rates
+        k_prot, kd_ssrA, k_sfGFP, kd_prot, k_ahl, kd_ahl, kd1_ahl, K_T, nH, k_leak, ara, K_Tara, nH_ara  = rates
+        self.kd_ahl = kd_ahl
+        self.kd1_ahl = kd1_ahl
 
         # make a separate directory for each arabinose conc results
-        self.ahl6Path=self.resultPath/f"ahl6_{ahl6:.3f}"
-        self.ahl6Path.mkdir(mode=0o777, parents=True, exist_ok=True)
+        self.araPath=self.resultPath/f"ara_{ara:.2f}"
+        self.araPath.mkdir(mode=0o777, parents=True, exist_ok=True)
 
         # save params to a text file
-        with open(self.ahl6Path/"params.csv", "w") as parFile:
+        with open(self.araPath/"params.csv", "w") as parFile:
             #write the header
-            parFile.write("k_gfp, kd_ssrA, k_luxR, kd_luxR, K_T, nH, k_leak, ahl6, D6")
+            parFile.write("k_prot, kd_ssrA, k_sfGFP, kd_prot, k_ahl, kd_ahl, kd1_ahl, K_T, ara, nH, k_leak, K_Tara, nH_ara, D6")
             parFile.write('\n')
-            parFile.write(f"{k_gfp}, {kd_ssrA}, {k_luxR}, {kd_luxR}, {K_T}, {nH}, {k_leak}, {ahl6}, {D6}")
+            parFile.write(f"{k_prot}, {kd_ssrA}, {k_sfGFP}, {kd_prot}, {k_ahl}, {kd_ahl}, {kd1_ahl}, {K_T}, {ara}, "+
+            f"{nH}, {k_leak}, {K_Tara}, {nH_ara}, {D6}")
             parFile.write('\n')
         parFile.close()
 
@@ -85,32 +75,33 @@ class RD_simulate(object):
         # create CellVariables
         self.vL = [] # list of CellVariables
         for i, vName in enumerate(self.vNames):
-            # to add random initial noise
-            var = CellVariable(name = vName, mesh = self.mesh, value = self.InVal[i]) # domeShp*
+            var = CellVariable(name = vName, mesh = self.mesh, value = self.InVal[i])
             self.vL.append(var)
 
-        # set initial AHL6
-        self.vL[2].setValue(ahl6)
-
         #define the reaction part
-        # note [0 - GFP, 1 - LuxR, 2 - AHL6]
-        self.LuxR_AHL6 = self.hillF(self.vL[1], self.vL[2], K_T, nH, k_leak)
+        # note ---> ['LuxR', 'AHL6', 'sfGFP', 'AiiA', 'LuxI']
+        self.LuxR_AHL6 = self.hillF(self.vL[0],self.vL[1],K_T,nH, k_leak)
+        self.ara_indc = self.hillF(10.,ara,K_Tara,nH_ara,k_leak)
 
-        eq00 = k_gfp*self.LuxR_AHL6- kd_ssrA*self.vL[0] # GFP
-        eq01 = k_luxR  - kd_luxR*self.vL[1] # LuxR
-        eq02 = - kd_ahl*self.vL[2] # AHL6
+        self.eq00 =k_prot - kd_prot*self.vL[0] # LuxR
+        self.eq01 =k_ahl*self.vL[4]  - self.vL[1]*(kd_ahl+kd1_ahl*self.vL[3]) # AHL6
+        self.eq02 =k_sfGFP*self.LuxR_AHL6- kd_ssrA*self.vL[2] # sfGFP
+        self.eq03 =k_prot*self.ara_indc- kd_ssrA*self.vL[3] # AiiA
+        self.eq04 =k_prot*self.LuxR_AHL6- kd_ssrA*self.vL[4] # LuxI
 
         # define reaction-diffusion system of PDEs
-        eq_GFP = TransientTerm(var=self.vL[0]) == DiffusionTerm(coeff=0.0, var=self.vL[0])+ eq00
-        eq_LuxR = TransientTerm(var=self.vL[1]) == DiffusionTerm(coeff=0.0, var=self.vL[1])+ eq01
-        eq_AHL6 = TransientTerm(var=self.vL[2]) == DiffusionTerm(coeff=D6, var=self.vL[2])+ eq02
+        self.eq_LuxR = TransientTerm(var=self.vL[0]) == DiffusionTerm(coeff=0.0, var=self.vL[0])+ self.eq00
+        self.eq_AHL6 = TransientTerm(var=self.vL[1]) == DiffusionTerm(coeff=D6, var=self.vL[1])+ self.eq01
+        self.eq_sfGFP = TransientTerm(var=self.vL[2]) == DiffusionTerm(coeff=0.0, var=self.vL[2])+ self.eq02
+        self.eq_AiiA = TransientTerm(var=self.vL[3]) == DiffusionTerm(coeff=0.0, var=self.vL[3])+ self.eq03
+        self.eq_LuxI = TransientTerm(var=self.vL[4]) == DiffusionTerm(coeff=0.0, var=self.vL[4])+ self.eq04
 
-        self.eq = eq_GFP & eq_LuxR & eq_AHL6
+        self.eq = self.eq_LuxR & self.eq_AHL6 & self.eq_sfGFP & self.eq_AiiA & self.eq_LuxI
 
         #write results to .csv files
         for i, vName in enumerate(self.vNames):
             fName = f"{vName}.csv"
-            with open(self.ahl6Path/fName, "w") as parFile:
+            with open(self.araPath/fName, "w") as parFile:
                 #write the header
                 parFile.write("t_min")
                 for j in range(self.nx):
@@ -125,18 +116,15 @@ class RD_simulate(object):
             parFile.close()
 
     def simulateModel(self, ):
-        """
-        method to numerically solve the system and save result to a dictionary
-        """
+        # iterate to numerically solve the system and save result to a dictionary
         step = 0
-
         while step <= self.steps:
             self.eq.solve(dt=self.dt)
 
             #save results to the .csv files
             for j, vName in enumerate(self.vNames):
                 fName = f"{vName}.csv"
-                with open(self.ahl6Path/fName, "a") as parFile:
+                with open(self.araPath/fName, "a") as parFile:
                     #append a new row to the file
                     parFile.write(f"{self.dt*(step+1):.2f}")
                     for k in range(self.nx):
@@ -157,72 +145,28 @@ class RD_simulate(object):
         # plot the results as space-time graphs and save
         for j, vName in enumerate(self.vNames):
             fName = f"{vName}.csv"
-            fPath = self.ahl6Path/fName
+            fPath = self.araPath/fName
             data_df = pd.read_csv(str(fPath),header=0, index_col = 0)
 
             vals = data_df.to_numpy(dtype='float')
             vals_sub = vals[::subVal,:]
 
-            #code to make space time plots
-            # fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (2.5,2.5))
-            # pos = ax.imshow(vals_sub.T, origin = 'lower', cmap = 'viridis')
-            #
-            # ax.grid(False)
-            # ax.set_ylabel("Length (mm)")
-            # ax.set_xlabel("Time (min)")
-            #
-            # # set x and y-ticks
-            # yAx = np.array(data_df.columns)
-            # yAx = yAx.astype(float)
-            # tAx = np.array(data_df.index)
-            # tAx = tAx.astype(float)
-            # tAx_sub = tAx[::subVal]
-            #
-            # yTic = [int(2*i/yAx[1]) for i in range(1+int(yAx[-1]/2))]
-            # y_labels = [2*i for i in range(1+int(yAx[-1]/2))]
-            # ax.set_yticks(yTic)
-            # ax.set_yticklabels(y_labels)
-            #
-            # xTic = [int(xticInt*i/tAx_sub[1]) for i in range(1+int(tAx_sub[-1]/xticInt))]
-            # x_labels = [xticInt*i for i in range(1+int(tAx_sub[-1]/xticInt))]
-            # ax.set_xticks(xTic)
-            # ax.set_xticklabels(x_labels)
-            #
-            # ax.tick_params(axis='both', which='major', labelsize=6)
-            #
-            # # add colorbar
-            # plt.colorbar(pos, fraction = 0.03, pad = 0.2, label = 'Intensity val.', orientation = 'horizontal')
-            #
-            # plt.tight_layout()
-            #
-            # #remove top and right spines
-            # ax.spines['top'].set_visible(False)
-            # ax.spines['right'].set_visible(False)
-            #
-            # figName_0 = f"{vName}_SpaceTime.png"
-            # figName_1 = f"{vName}_SpaceTime.pdf"
-            #
-            # # plt.show()
-            # plt.savefig(self.ahl6Path/figName_0, transparent=True, dpi = 300)
-            # plt.savefig(self.ahl6Path/figName_1, transparent=True)
-            # plt.close()
-
             # get an array of mean values at the center (10% of the total region)
-            meanCent = np.mean(vals[:,int(0.45*self.nx):int(0.55*self.nx)], axis = 1)
+            meanCent = np.mean(vals[:,int(0.4*self.nx):int(0.5*self.nx)], axis = 1)
 
             # add timeseries to the dict
             timeSerDict[vName]= meanCent
 
-            # add final GFP conc. to a dict to make the dose response curve
-            if vName =="GFP" and self.tAx[-1]>=360:
-                self.doseRes[ahl6] =meanCent[int(360/self.dt)]
+            # add final sfGFP conc. to a dict to make the dose response curve
+            if vName =="sfGFP" and self.tAx[-1]>=360:
+                self.doseRes[ara] =meanCent[int(360/self.dt)]
 
-            if vName =="GFP" and self.tAx[-1]<360:
-                self.doseRes[ahl6] =meanCent[-1]
+            if vName =="sfGFP" and self.tAx[-1]<360:
+                self.doseRes[ara] =meanCent[-1]
 
-        # save time series of all variable in the respective ahl dir
+        # save time series of all variable in the respective ara dir
         timeSerDF = pd.DataFrame.from_dict(timeSerDict)
-        timeSerDF.to_csv(self.ahl6Path/'timeSerAll.csv')
+        timeSerDF.to_csv(self.araPath/'timeSerAll.csv')
 
     def timeSerPlots(self, ):
         """
@@ -230,13 +174,13 @@ class RD_simulate(object):
         """
         # make a color dict to assign colors to typeId
         viridis = cm.get_cmap('viridis', 256)
-        cmap0 = viridis(np.linspace(0, 1, len(self.ahl6List)))
+        cmap0 = viridis(np.linspace(0, 1, len(self.araList)))
 
         for vName in self.vNames:
-            # load GFP timeseries at all ahl treatments
+            # load sfGFP timeseries at all ahl treatments
             normSeries = []
-            for ahl6 in self.ahl6List:
-                fName = self.resultPath/f"ahl6_{ahl6:.3f}"/'timeSerAll.csv'
+            for ara in self.araList:
+                fName = self.resultPath/f"ara_{ara:.2f}"/'timeSerAll.csv'
                 data_df = pd.read_csv(str(fName),header=0, index_col = 0)
                 vals = np.array(data_df[vName])
                 normSeries.append(vals)
@@ -244,17 +188,17 @@ class RD_simulate(object):
             normArr = np.array(normSeries)
 
             # make plots without scaling the data to maximum of 1
-            fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (2.4,1.6))
+            fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (2.4,1.5))
 
-            for i, ahl6 in enumerate(self.ahl6List):
-                ax.plot(self.tAx, normArr[i,:], linewidth = 1, c=cmap0[i], label = f'{ahl6:.0e} nM')
+            for i, ara in enumerate(self.araList):
+                ax.plot(self.tAx, normArr[i,:], linewidth = 1, c=cmap0[i], label = f'{ara:.0e} nM')
 
             ax.set_xlabel("Time (min)")
-            ax.set_ylabel("Output (A.U.)")
+            ax.set_ylabel("Simulated sfGFP output")
             ax.set_ylim(0.0,1.02*np.amax(normArr))
             ax.set_xlim(0.0,1.02*self.tAx[-1])
             ax.tick_params(axis='both', which='major', labelsize=6)
-            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title = r"AHL$_{6}$")
+            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title = "Arabinose")
 
             #remove top and right spines
             ax.spines['top'].set_visible(False)
@@ -273,17 +217,17 @@ class RD_simulate(object):
             normArr0 = normArr/np.amax(normArr)
 
             # to make time-series plots with mean values from domain center
-            fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (2.4,1.6))
+            fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (2.4,1.5))
 
-            for i, ahl6 in enumerate(self.ahl6List):
-                ax.plot(self.tAx, normArr0[i,:], linewidth = 1, c=cmap0[i], label = f'{ahl6:.0e} nM')
+            for i, ara in enumerate(self.araList):
+                ax.plot(self.tAx, normArr0[i,:], linewidth = 1, c=cmap0[i], label = f'{ara:.0e} nM')
 
             ax.set_xlabel("Time (min)")
-            ax.set_ylabel("Output (A.U.)")
+            ax.set_ylabel("Simulated sfGFP output")
             ax.set_ylim(0.0,1.02)
             ax.set_xlim(0.0,1.02*self.tAx[-1])
             ax.tick_params(axis='both', which='major', labelsize=6)
-            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title = r"AHL$_{6}$")
+            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title = "Arabinose")
 
             #remove top and right spines
             ax.spines['top'].set_visible(False)
@@ -302,17 +246,17 @@ class RD_simulate(object):
         """
         method to make dose-response plots with mean values from domain center
         """
-        fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (1.6,1.6))
+        fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (1.5,1.5))
 
         # make data array
         doseRes = np.array(list(self.doseRes.items()))
 
         #save doseRes dict as a pandas DataFrame
-        doseDf = pd.DataFrame(self.doseRes.items(), columns = ['AHL6', 'GFP'])
+        doseDf = pd.DataFrame(self.doseRes.items(), columns = ['Ara', 'sfGFP'])
         doseDf.to_csv(self.resultPath/"doseRes.csv")
 
         xAra = doseRes[1:,0]
-        yRes = doseRes[1:,1]/np.amax(doseRes[:,1])
+        yRes = doseRes[1:,1]/np.amax(doseRes[1:,1])
         ax.scatter(xAra, yRes, marker= "o", c='k', s = 5)
 
         ####
@@ -321,7 +265,7 @@ class RD_simulate(object):
 
         #fit data to rev_sigmoidFunc - 1) use the x and yAvg to calculate the fit parameters; 2) define to new xFit array and calculate yFit using the
         # obtained fit parameters- opt_K and opt_n
-        bnds= ([10**-2, 0.5],[10**2, 2.0])
+        bnds= ([10**1, 0.5],[10**5, 2.0])
         mthd = 'trf'
 
         xdata=np.zeros((len(xAra), 3))
@@ -329,10 +273,10 @@ class RD_simulate(object):
         xdata[:,1]= np.amin(yRes)
         xdata[:,2]= np.amax(yRes)
 
-        popt, pcov = curve_fit(self.sigmoidFunc, xdata, yRes, bounds=bnds,  method=mthd)
+        popt, pcov = curve_fit(self.rev_sigmoidFunc, xdata, yRes, bounds=bnds,  method=mthd)
         perr = np.sqrt(np.diag(pcov))
 
-        xFit = np.logspace(-3,3,50)
+        xFit = np.logspace(0,6,50)
         opt_K, opt_n = popt
 
         fitDict["K"].append(opt_K)
@@ -347,15 +291,15 @@ class RD_simulate(object):
         xdata[:,1]= np.amin(yRes)
         xdata[:,2]= np.amax(yRes)
 
-        yFit = self.sigmoidFunc(xdata,opt_K,opt_n)
+        yFit = self.rev_sigmoidFunc(xdata,opt_K,opt_n)
 
         ax.plot(xFit,yFit, c="k", linewidth = 1)
         ####
         # ax.plot(xAra, yRes, 'g--', linewidth = 1)
 
         ax.set_xscale("log")
-        ax.set_xlabel(r"AHL$_6$ (nM)")
-        ax.set_ylabel("Output (A.U.)")
+        ax.set_xlabel("Arabinose (nM)")
+        ax.set_ylabel("Simulated sfGFP output")
         ax.set_ylim(0.0,1.02*np.amax(yRes))
         ax.set_xlim(xAra[0],1.2*xAra[-1])
 
@@ -365,8 +309,8 @@ class RD_simulate(object):
         ax.grid(False)
         plt.tight_layout()
 
-        figName_0 = f"ahl6_doseRe.png"
-        figName_1 = f"ahl6_doseRe.pdf"
+        figName_0 = f"ara_doseRe.png"
+        figName_1 = f"ara_doseRe.pdf"
 
         # plt.show()
         plt.savefig(self.resultPath/figName_0, transparent=True, dpi = 300)
@@ -376,11 +320,11 @@ class RD_simulate(object):
         fit_df = pd.DataFrame(fitDict,index=[360])
         fit_df.to_csv(self.resultPath/f"fitParams.csv")
 
-    def sigmoidFunc(self, xdata, K, n):
+    def rev_sigmoidFunc(self, xdata, K, n):
         x = xdata[:,0]
         ymin=xdata[:,1]
         ymax = xdata[:,2]
-        y = ymin + (ymax-ymin)*x**n/(x**n+K**n)
+        y = ymin + (ymax-ymin)*K**n/(x**n+K**n)
         return y
 
 # main code
@@ -393,72 +337,68 @@ if __name__=="__main__":
     plt.rcParams["font.family"] = "Arial"
     plt.rcParams["font.size"] = 6
     plt.rcParams['legend.fontsize'] = 6
+    plt.rcParams['pdf.fonttype'] = 42
 
     #get current dir and datetime
     cwdPath=Path(os.path.abspath(os.getcwd()))
     now=datetime.now()
-    datetime_str=(now.strftime("%Y%m%d_%H%M%S_")) # %H%M%S_
+    datetime_str=(now.strftime("%Y%m%d_")) # %H%M%S_
 
     #make output directory
-    dirName=str(datetime_str+ "mod1_AHL6sensor_doseRe_Fig3") # the positive loop model
+    dirName=str(datetime_str+ "mod3_posLoop_Fig2") # the positive loop model
 
     resultPath=cwdPath/'data_1D'/dirName
     resultPath.mkdir(mode=0o777, parents=True, exist_ok=True)
     print(f"Created result directory {dirName} at {time.time() - t1} sec ...")
 
     #define global parameters
-    steps = 180
-    dt= 2.0 # time in min
-    gridSize = 1 # mm
+    steps = 720
+    dt=1.0 # time in min
+    gridSize = 2 # mm
     dx= 0.1 # mm
     nx = int(gridSize/dx)
-    vNames = ['GFP', 'LuxR', 'AHL_6']
-
-    """
-    *Note: to implement delay in observation of GFP signal (maturation time ~ 10 min) -
-    https://pubs.acs.org/doi/10.1021/acssynbio.1c00387
-    I use 40 min as there seems to be more delay in E. coli in getting the fluorescence signal.
-    I'll simply make another variable GFP that is closer to the experimental GFP measurements
-    """
+    vNames = ['LuxR', 'AHL6', 'sfGFP', 'AiiA', 'LuxI']
 
     # define diffusion rates (per min)
-    D6= 0.0 #3.6*1E-2 # AHL6 diffusion rate(act)
+    D6= 0. # 3.6*1E-2 # AHL6 diffusion rate(act)
 
     # synthesis rates (1/min, )
-    k_gfp = 0.1 # synthesis time  ~ 10 min
-    k_luxR = 0.2 # synthesis time ~ 5 min
+    k_prot = 0.2 # protein synthesis (transcrition + translation)
+    k_sfGFP = 0.1 # sfGFP protein synthesis + maturation
+    k_ahl = 0.002 # AHL synthesis rate (by LuxI)
 
     # degradation rates (unit = 1/min, )
-    # note: half-life of 60 min --> degradation rate = 0.01 1/min
-    kd_ssrA = 0.018 # half life of 38.5 min - based on http://parts.igem.org/Part:BBa_K1399004
-    # original paper - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC106306/
-
-    kd_luxR = 0.0028 #t1/2 ~ 240 min
-    kd_ahl = 0.0011 #t1/2 ~ 10 h = 600 min - based on
-    # table 1 of --> https://academic.oup.com/femsec/article/52/1/13/482593
+    kd_ssrA = 0.018 # sfGFP decay (LVA tagged)
+    kd_prot = 0.0028 # LuxR decay, half-life of 4 h
+    kd_ahl = 0.0011 # ahl decay (hydroslysis), half-life ~ 10 h
+    kd1_ahl = 0.01 # ahl degradation by lactonase (arabinose-induced)
 
     # activation threshold
-    K_T = 5.0 # nM
+    K_T = 10.0 # nM ahl6 threshold conc.
+    K_Tara = 6000. # arabinose induction threshold
     nH = 1.5 # Hill coefficient
-    k_leak = 0.05 # leaky expression of GFP from GFP promoter
+    nH_ara = 1.5
+    k_leak = 0.08 # leaky expression of sfGFP from pLux promoter (same leakiness for pBAD)
 
-    ahl6List = [0., 0.001,0.01, 0.1, 1., 10., 100., 1000.]
-    # ahl6List = [10., 100., 1000.]
+    araList = [0., 1.,10.,100., 1000.,1E4, 1E5, 1E6] # 1.,10.,100.,
+    # araList = [0., 1., 1000., 1E5] # 1.,10.,100.,
 
-    mod_L6 = RD_simulate(nx, dx, dt, steps, vNames, resultPath, ahl6List)
+    mod_posLoop = RD_simulate(nx, dx, dt, steps, vNames, resultPath, araList)
 
-    # y0 = [1.0 for i in range(2)]
-    y0 = [40.0,5.0, 0.1]
+    # y0 = [1.0 for i in range(3)]
+    y0 = [60.,1.0, 180.0,  0.10, 360.0] # 'LuxR', 'AHL6', 'sfGFP', 'AiiA', 'LuxI',
+    # y0 = 5*[40.] # 'LuxR', 'AHL6', 'sfGFP', 'AiiA', 'LuxI',
 
-    for ahl6 in ahl6List:
-        rates = [k_gfp, kd_ssrA, k_luxR, kd_luxR, K_T, nH, k_leak, ahl6]
-        mod_L6.makeModel(y0,rates,D6)
-        mod_L6.simulateModel()
-        mod_L6.analysis_plots()
-        print(f'Completed ahl6 dose = {ahl6}')
+    for ara in araList:
+        rates = [k_prot, kd_ssrA, k_sfGFP, kd_prot, k_ahl, kd_ahl, kd1_ahl, K_T, \
+        nH, k_leak, ara, K_Tara, nH_ara]
+        mod_posLoop.makeModel(y0,rates,D6)
+        mod_posLoop.simulateModel()
+        mod_posLoop.analysis_plots()
+        print(f'Completed ara dose = {ara}')
 
-    mod_L6.makeDoseResponse()
-    mod_L6.timeSerPlots()
+    mod_posLoop.makeDoseResponse()
+    mod_posLoop.timeSerPlots()
 
     #end code
     t2= time.time()
