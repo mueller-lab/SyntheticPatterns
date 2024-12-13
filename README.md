@@ -34,14 +34,14 @@ Download the source code as ZIP, unzip and open the directory in the terminal. U
 `pip install -r requirements_synPat_env.txt`
 
 # Code running instructions
-## Running the mathemtical model code
+## Running the mathematical model code
 - After successfully installing the virtual environment, change directory to `MathematicalModels` and run the mathematical model (eg., model1.py) using ... 
 
 `cd MathematicalModels`
 
 `python3 model1.py`
 
-- Runtime (using Apple M2, 16 GB, macOS:Sonoma 14.6.1): 16 s (model1), 14 s (model2), 2min:11s (model3), 1min:33s (model4)
+- Runtime (using Apple M2, 16 GB, macOS:Sonoma 14.6.1): 16s (model1), 14s (model2), 2min:11s (model3), 1min:33s (model4), 28s (model5),12min:36s (model5_2D).
 
 ## Runnning the data analysis code:
 
