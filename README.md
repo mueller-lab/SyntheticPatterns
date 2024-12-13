@@ -1,16 +1,32 @@
 # SyntheticPatterns
 
-Code used in the synthetic multicellular patterns paper. 
+## Paper: Self-organized traveling waves in a synthetic multicellular reaction-diffusion system
 
-Code organization
+# Code organization
+- Mathematical models: This directory contains custome python code to simulate the mathematical models used in this study.  FiPy installation is needed to run this code. The detailed instructions are given below.
+- Data analysis: This directory contains custome python code used to analyze experimentally generated data. Python libraries such as numpy, scipy, matplotlib, and seaborn are needed to run this code. The detailed instructions are given below.
 
-Fipy Installation 
 
-Software dependencies
+# Software requirements
 
-Operating systems
+## Operating systems
+- Windows 
+- macOS (Sonoma 14.6.1)
 
-Code running instructions
+## Python packages
+```
+fipy
+numpy
+scipy
+matplotlib
+pandas
+seaborn
+```
+
+# Installation
+
+
+## Code running instructions
 Running the mathemtical model code (Runtime: )
 
 Runnning the data analysis code (Runtime: ) 
