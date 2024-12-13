@@ -27,11 +27,11 @@ seaborn
 ## Creating a virtual environment with all required python packages
 Download the source code as ZIP, unzip and open the directory in the terminal. Use the following commands in the terminal - 
 
-`python3 -m venv fipy_env`
+`python3 -m venv synPat_env`
 
-`source fipy_env/bin/activate`
+`source synPat_env/bin/activate`
 
-`pip install -r requirements_fipy_env.txt`
+`pip install -r requirements_synPat_env.txt`
 
 # Code running instructions
 ## Running the mathemtical model code
