@@ -43,14 +43,11 @@ Download the source code as ZIP, unzip and open the directory in the terminal. U
 
 - Runtime (using Apple M2, 16 GB, macOS:Sonoma 14.6.1): 16s (model1), 14s (model2), 2min:11s (model3), 1min:33s (model4), 28s (model5),12min:36s (model5_2D).
 
-## Running the data analysis code:
+## Running the data analysis code
 
 - ImageAnalysisMacros: The custom imageJ macro uses the BaSiC plugin (https://github.com/marrlab/BaSiC) for shading correction. Please, install FiJi and the plugin as detailed on - https://github.com/marrlab/BaSiC. Then, the macro can be tested with the provided demo dataset. To do so, unzip the demo data file. Run the macro in ImageJ and select the correct inputs when prompted by the code - in the order select directories - `flatField`, `Input`, and `Results`.
 
 - PythonScripts: Custom python scripts were used in this study for analysis of 1. Diffusion coefficient estimates, 2. Fluorescence plate reader assay data, 3. qPCR data, and 4. traveling wave data. The code as well as example data are provided. 
-
-
-
 
 
 
