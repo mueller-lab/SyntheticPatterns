@@ -28,14 +28,14 @@ scle = 15.09767 // um/px for 2X objective with 480x360 px image resolution
 
 //Array.print(imageList);
 
-tList= newArray(97);
+tList= newArray(5);
 for (i=0; i<tList.length; i++){
 	tList[i] = i+1;	
 }
 
-psList=newArray(16);
+psList=newArray(1);
 for (i=0; i<psList.length; i++){
-	psList[i] = i+1;	
+	psList[i] = i+17;	
 }
 
 //psList=newArray("01");
