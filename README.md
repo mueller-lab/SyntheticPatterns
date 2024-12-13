@@ -45,8 +45,9 @@ Download the source code as ZIP, unzip and open the directory in the terminal. U
 
 ## Runnning the data analysis code:
 
-- Demo datasets (Expected output and runtime):
+- ImageAnalysisMacros: The custom imageJ macro uses the BaSiC plugin (https://github.com/marrlab/BaSiC) for shading correction. Please, install FiJi and the plugin as detailed on - https://github.com/marrlab/BaSiC. Then, the macro can be tested with the provided demo dataset. To do so, unzip the demo data file. Run the macro in ImageJ and select the correct inputs when prompted by the code - in the order select directories - `flatField`, `Input`, and `Results`.
 
+- 
 
 
 
