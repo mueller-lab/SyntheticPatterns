@@ -1,10 +1,8 @@
 """
 Amit Landge
 
-Goal -
+Goal - To model positive loop circuit
 
-Assumpations -
-1.
 """
 
 # import necessary packages
@@ -345,7 +343,7 @@ if __name__=="__main__":
     datetime_str=(now.strftime("%Y%m%d_")) # %H%M%S_
 
     #make output directory
-    dirName=str(datetime_str+ "mod3_posLoop_Fig2") # the positive loop model
+    dirName=str(datetime_str+ "mod3_posLoop") # the positive loop model
 
     resultPath=cwdPath/'data_1D'/dirName
     resultPath.mkdir(mode=0o777, parents=True, exist_ok=True)
