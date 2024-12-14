@@ -1,10 +1,8 @@
 """
 Amit Landge
 
-Goal -
+Goal -To model the complete synthetic patterning circuit (on a 2D grid)
 
-Assumpations -
-1.
 """
 
 # import necessary packages
