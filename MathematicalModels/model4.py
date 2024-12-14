@@ -1,10 +1,7 @@
 """
 Amit Landge
 
-Goal -
-
-Assumpations -
-1.
+Goal - To model negative loop circuit
 """
 
 # import necessary packages
