@@ -400,7 +400,7 @@ if __name__=="__main__":
     datetime_str=(now.strftime("%Y%m%d_%H%M%S_")) # %H%M%S_
 
     #make output directory
-    dirName=str(datetime_str+ "mod1_AHL6sensor_doseRe_Fig3") # the positive loop model
+    dirName=str(datetime_str+ "mod1_AHL6sensor_doseRe") # the positive loop model
 
     resultPath=cwdPath/'data_1D'/dirName
     resultPath.mkdir(mode=0o777, parents=True, exist_ok=True)
