@@ -466,25 +466,28 @@ if __name__=="__main__":
     secR = 2/3
 
     #make output directory
-    # dropList = [5,6] # 2021-04-16
+    dropList = [5,6] # 2021-04-16
     # dropList = [1,2,3,4,5,6] # 2021-03-11
-    dropList = [2,3,4,5] # 2021-03-05
+    # dropList = [2,3,4,5] # 2021-03-05
 
-    datePath = cwdPath/'out'/'2021-03-05'
-    with open(datePath/'out.csv', 'a') as f:
+    datePath = cwdPath/'out'/'2021-04-16'
+    if not(datePath.exists()):
+        datePath.mkdir(parents=True)
+
+    with open(datePath/'out.csv', 'w') as f:
         f.write('drop, D (um^2/s), residual \n')
 
     for drop in dropList:
         dirName=str(datetime_str+ f"mod1_AHL6sensor_drop{drop}_subAuto_Fig3") # the positive loop model
 
-        resultPath=cwdPath/'out'/'2021-03-05'/dirName
+        resultPath=cwdPath/'out'/'2021-04-16'/dirName
         resultPath.mkdir(mode=0o777, parents=True, exist_ok=True)
         print(f"Created result directory {dirName} at {time.time() - t1} sec ...")
 
 
         # get the experimetal radial profile
-        # dataDir = cwdPath/"data"/"2021-04-16" # input csv file path
-        dataDir = cwdPath/"data"/"2021-03-05" # input csv file path
+        dataDir = cwdPath/"data"/"2021-04-16" # input csv file path
+        # dataDir = cwdPath/"data"/"2021-03-05" # input csv file path
         numHr = 5
         outDir = resultPath
         dataArr, xAx, headIndex = getExptProf(drop, numHr, outDir, fluor = 'gfp', chopOff=2800.)
