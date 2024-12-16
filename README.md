@@ -48,7 +48,7 @@ Download the source code as ZIP, unzip and open the directory in the terminal. U
 
 ### Running the data analysis code
 
-- ImageAnalysisMacros: The custom ImageJ macro uses the BaSiC plugin for shading correction. Please install FiJi (ImageJ 2.9.0/1.53t) and the plugin as detailed on - https://github.com/marrlab/BaSiC. Then, the macro can be tested with the provided demo dataset. To do so, unzip the demo data file. Run the macro in ImageJ and select the correct inputs when prompted - select directories - `flatField`, `Input`, and `Results` in that order.
+- <a href:"https://github.com/mueller-lab/SyntheticPatterns/tree/main/DataAnalysis/ImageAnalysisMacros"><b>ImageAnalysisMacros</b></a>: The custom ImageJ macro uses the BaSiC plugin for shading correction. Please install FiJi (ImageJ 2.9.0/1.53t) and the plugin as detailed on - https://github.com/marrlab/BaSiC. Then, the macro can be tested with the provided demo dataset. To do so, unzip the demo data file. Run the macro in ImageJ and select the correct inputs when prompted - select directories - `flatField`, `Input`, and `Results` in that order.
 
 - PythonScripts: Custom Python scripts were used in this study for analysis of 1. diffusion coefficient estimates, 2. fluorescence plate reader assay data, 3. qPCR data, and 4. traveling wave data. The code as well as example input data are provided. To test the code, simply run the respective Python scripts in the directory - for example, run `python3 kymograph_plotting.py` in terminal (with synPat_env active) for testing `kymograph_plotting.py`.
 
