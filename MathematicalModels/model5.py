@@ -522,10 +522,10 @@ class RD_simulate(object):
         to plot mCherry and sfGFP over time similar to Fig. 4e
         """
         # # make colormap
-        viridis = cm.get_cmap('viridis', 256)
+        viridis = matplotlib.colormaps.get_cmap('viridis')
         cmapV = viridis(np.linspace(0, 1, 5))
 
-        magma = cm.get_cmap('magma', 256)
+        magma = matplotlib.colormaps.get_cmap('magma')
         cmapM = magma(np.linspace(0, 1, 5))
 
         # make a dict to assign cmap to ch
