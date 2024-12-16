@@ -3,7 +3,7 @@
 ## Introduction
 This repository provides custom code used in our paper: "Self-organized traveling waves in a synthetic multicellular reaction-diffusion system"
 
-In this study, we developed a mathematical modeling framwork for self-organized pattern formation via reaction-diffusion mechanisms. We combined mathematical modeling with synthetic biology approaches to create a synthetic multicelluar system capable of generating self-organized travelling waves. 
+In this study, we developed a mathematical modeling framwork for self-organized pattern formation via reaction-diffusion mechanism. We combined mathematical modeling with synthetic biology approaches to create a synthetic multicelluar system capable of generating self-organized travelling waves. 
 
 ### Code organization
 - Mathematical models: This directory contains custom Python code to simulate the mathematical models used in this study. FiPy installation is needed to run this code. Detailed instructions are given below.
