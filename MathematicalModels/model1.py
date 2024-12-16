@@ -229,7 +229,7 @@ class RD_simulate(object):
         to make time-series plots of the variable output
         """
         # make a color dict to assign colors to typeId
-        viridis = cm.get_cmap('viridis', 256)
+        viridis = matplotlib.colormaps.get_cmap('viridis', 256)
         cmap0 = viridis(np.linspace(0, 1, len(self.ahl6List)))
 
         for vName in self.vNames:
