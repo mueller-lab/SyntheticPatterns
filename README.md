@@ -3,16 +3,17 @@
 ## Introduction
 This repository provide custom code developed in our paper: "Self-organized traveling waves in a synthetic multicellular reaction-diffusion system"
 
+In this study, we developed a mathematical modeling framwork for self-organized pattern formation via reaction-diffusion. We combined mathematical modeling with synthetic biology approaches to create a synthetic multicelluar system capable of generating self-organized travelling waves. 
 
 ### Code organization
-- Mathematical models: This directory contains custome python code to simulate the mathematical models used in this study.  FiPy installation is needed to run this code. The detailed instructions are given below.
-- Data analysis: This directory contains custome python code used to analyze experimentally generated data. Python libraries such as numpy, scipy, matplotlib, and seaborn are needed to run this code. The detailed instructions are given below.
+- Mathematical models: This directory contains custom python code to simulate the mathematical models used in this study. FiPy installation is needed to run this code. The detailed instructions are given below.
+- Data analysis: This directory contains custom python code used to analyze experimentally generated data. Python libraries such as numpy, scipy, matplotlib, and seaborn are needed to run this code. The detailed instructions are given below.
 
 
 ## Software requirements
 
 ### Operating systems
-- Windows11 
+- Windows11 Pro 
 - macOS (Sonoma 14.6.1)
 
 ### Python packages
