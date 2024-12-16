@@ -6,8 +6,8 @@ This repository provides custom code used in our paper: "Self-organized travelin
 In this study, we developed a mathematical modeling framwork for self-organized pattern formation via reaction-diffusion mechanism. We combined mathematical modeling with synthetic biology approaches to create a synthetic multicellular system capable of generating self-organized travelling waves. 
 
 ### Code organization
-- Mathematical models: This directory contains custom Python code to simulate the mathematical models used in this study. FiPy installation is needed to run this code. Detailed instructions are given below.
-- Data analysis: This directory contains custom Python code used to analyze experimentally generated data. Python libraries such as numpy, scipy, matplotlib, and seaborn are needed to run this code. Detailed instructions are given below.
+- <a href="https://github.com/mueller-lab/SyntheticPatterns/tree/main/MathematicalModels"><b>Mathematical models </b></a>: This directory contains custom Python code to simulate the mathematical models used in this study. FiPy installation is needed to run this code. Detailed instructions are given below.
+- <a href="https://github.com/mueller-lab/SyntheticPatterns/tree/main/DataAnalysis"><b>Data analysis </b></a>: This directory contains custom Python code used to analyze experimentally generated data. Python libraries such as numpy, scipy, matplotlib, and seaborn are needed to run this code. Detailed instructions are given below.
 
 
 ## Software requirements
