@@ -316,7 +316,7 @@ if __name__=="__main__":
         treatments = np.sort(treatments)
 
         # make a color dict to assign colors to typeId
-        viridis = cm.get_cmap('viridis', 256)
+        viridis = matplotlib.colormaps.get_cmap('viridis')
         cmap0 = viridis(np.linspace(0, 1, len(treatments)))
 
         # plot a timeseries of fluorescence/OD_600
@@ -379,7 +379,7 @@ if __name__=="__main__":
         treatments = np.sort(treatments)
 
         # make a color dict to assign colors to typeId
-        viridis = cm.get_cmap('viridis', 256)
+        viridis = matplotlib.colormaps.get_cmap('viridis')
         cmap0 = viridis(np.linspace(0, 1, len(treatments)))
 
         for j, treat in enumerate(treatments):
@@ -441,7 +441,7 @@ if __name__=="__main__":
         treatments = np.sort(treatments)
 
         # make a color dict to assign colors to typeId
-        viridis = cm.get_cmap('viridis', 256)
+        viridis = matplotlib.colormaps.get_cmap('viridis')
         cmap0 = viridis(np.linspace(0, 1, len(treatments)))
 
         for j, treat in enumerate(treatments):
