@@ -401,11 +401,11 @@ class RD_simulate(object):
             # magma for mCherry
             if 'mCherry' in vPlot:
                 # make a color dict to assign colors to typeId
-                viridis = cm.get_cmap('magma', 256)
+                viridis = matplotlib.colormaps.get_cmap('magma', 256)
                 cmap0 = viridis(np.linspace(0, 1, 1+len(self.araList)))
             else:
                 # make a color dict to assign colors to typeId
-                viridis = cm.get_cmap('viridis', 256)
+                viridis = matplotlib.colormaps.get_cmap('viridis', 256)
                 cmap0 = viridis(np.linspace(0, 1, len(self.araList)))
 
             # load var timeseries at all ahl treatments
