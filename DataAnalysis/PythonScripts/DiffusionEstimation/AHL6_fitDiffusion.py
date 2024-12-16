@@ -213,7 +213,7 @@ class RD_simulate(object):
         x = np.linspace(0, self.nx*self.dx, self.nx)# length in mm
 
         # make a color dict to assign colors to timepoints
-        viridis = cm.get_cmap('viridis', 256)
+        viridis = matplotlib.colormaps.get_cmap('viridis')
         hrCol = viridis(np.linspace(0, 1, len(self.fluorDict.keys())))
 
         #get global max of all values in the dict
@@ -278,7 +278,7 @@ class RD_simulate(object):
         # make a color dict to assign colors to timepoints
         if makePlot:
             fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize= (2.4,1.6))
-            viridis = cm.get_cmap('viridis', 256)
+            viridis = matplotlib.colormaps.get_cmap('viridis')
             hrCol = viridis(np.linspace(0, 1, len(hrList)))
 
             for i, val in enumerate(simDataArr):
@@ -360,7 +360,7 @@ def getExptProf(drop, numHr, outDir, fluor = 'gfp', chopOff=200.):
     fig, ax  = plt.subplots(nrows = 1, ncols = 1, figsize= (1.6,1.6))
 
     # make a color dict to assign colors to typeId
-    viridis = cm.get_cmap('viridis', 256)
+    viridis = matplotlib.colormaps.get_cmap('viridis')
     cmap0 = viridis(np.linspace(0, 1, numHr))
 
     xAx_mm = xAx/1000 # xAx values in mm
