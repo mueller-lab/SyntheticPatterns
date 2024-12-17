@@ -20,6 +20,11 @@ import copy
 from fipy import *
 import pandas as pd
 
+# fix the error with gmsh version
+import gmsh
+gmsh.initialize()
+print("Using Gmsh version:", gmsh.__version__)
+
 # define functions
 class RD_simulate(object):
     """docstring for RD_simulate."""
