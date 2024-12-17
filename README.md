@@ -34,6 +34,8 @@ Download the source code as ZIP, unzip and open the directory in the terminal. U
 
 `source synPat_env/bin/activate` (on macOS)
 
+OR
+
 `. synPat_env/Scripts/activate` (on windows OS)
 
 `pip install -r requirements_synPat_env.txt`
