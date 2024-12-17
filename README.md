@@ -13,8 +13,8 @@ In this study, we developed a mathematical modeling framwork for self-organized 
 ## Software requirements
 
 ### Operating systems
-- Windows11 Pro 
-- macOS (Sonoma 14.6.1)
+- Windows 11 Home (13th Gen Intel(R) Core(TM) i7-1355U, RAM 16 GB)
+- macOS Sonoma 14.6.1 (Apple M2, RAM 16 GB) 
 
 ### Python packages
 ```
@@ -54,7 +54,14 @@ On windows OS
 
 `python3 model1.py`
 
-- Runtime (using Apple M2, 16 GB, macOS:Sonoma 14.6.1): 16s (model1), 14s (model2), 2min:11s (model3), 1min:33s (model4), 28s (model5),12min:36s (model5_2D).
+- Runtime (On macOS): 16s (model1), 14s (model2), 2min:11s (model3), 1min:33s (model4), 28s (model5), 12min:36s (model5_2D).
+- Runtime (On windows OS): 27s (model1), 1min:54s (model2), 14min:17s (model3), 5min:23s (model4), 27s (model5), 14min:56s (model5_2D).
+
+(Note: If Gmsh version error is encountered on windows OS, please download gmsh version 3.0.6 from here- http://gmsh.info/bin/Windows/gmsh-3.0.6-Windows64.zip
+
+and unzip the file and copy all the contents to the folder .\synPat_env\Scripts\
+
+This should fix the version incompatibility.) 
 
 ### Running the data analysis code
 
