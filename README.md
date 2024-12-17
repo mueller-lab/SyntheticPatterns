@@ -30,7 +30,8 @@ seaborn
 ### Creating a virtual environment with all required Python packages
 Download the source code as ZIP, unzip and open the directory in the terminal. Use the following commands in the terminal - 
 
-On MacOS
+On macOS
+
 `python3 -m venv synPat_env`
 
 `source synPat_env/bin/activate`
@@ -38,6 +39,7 @@ On MacOS
 `pip install -r requirements_synPat_env.txt`
 
 On windows OS
+
 `python3 -m venv synPat_env`
 
 `. synPat_env/Scripts/activate`
