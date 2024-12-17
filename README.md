@@ -57,10 +57,8 @@ On windows OS
 - Runtime (On macOS): 16s (model1), 14s (model2), 2min:11s (model3), 1min:33s (model4), 28s (model5), 12min:36s (model5_2D).
 - Runtime (On windows OS): 27s (model1), 1min:54s (model2), 14min:17s (model3), 5min:23s (model4), 27s (model5), 14min:56s (model5_2D).
 
-(Note: If Gmsh version error is encountered on windows OS, please download gmsh version 3.0.6 from here- http://gmsh.info/bin/Windows/gmsh-3.0.6-Windows64.zip
-
-and unzip the file and copy all the contents to the folder .\synPat_env\Scripts\
-
+- (Note: If Gmsh version error is encountered on windows OS, please download gmsh version 3.0.6 from here- http://gmsh.info/bin/Windows/gmsh-3.0.6-Windows64.zip
+and unzip the file and copy all the contents to the folder `.\synPat_env\Scripts\` 
 This should fix the version incompatibility.) 
 
 ### Running the data analysis code
