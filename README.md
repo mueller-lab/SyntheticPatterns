@@ -42,7 +42,7 @@ On windows OS
 
 `python3 -m venv synPat_env`
 
-`. synPat_env/Scripts/activate`
+`.\synPat_env\Scripts\activate`
 
 `pip install -r requirements_synPat_env.txt`
 
