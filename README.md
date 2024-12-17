@@ -13,10 +13,12 @@ In this study, we developed a mathematical modeling framwork for self-organized 
 ## Software requirements
 
 ### Operating systems
-- Windows 11 Home (13th Gen Intel(R) Core(TM) i7-1355U, RAM 16 GB)
 - macOS Sonoma 14.6.1 (Apple M2, RAM 16 GB) 
+- Windows 11 Home (13th Gen Intel(R) Core(TM) i7-1355U, RAM 16 GB)
 
 ### Python packages
+`python version = 3.11`
+
 ```
 fipy
 numpy
@@ -32,7 +34,7 @@ Download the source code as ZIP, unzip and open the directory in the terminal. U
 
 On macOS
 
-`python3 -m venv synPat_env`
+`python -m venv synPat_env`
 
 `source synPat_env/bin/activate`
 
@@ -40,7 +42,7 @@ On macOS
 
 On windows OS
 
-`python3 -m venv synPat_env`
+`python -m venv synPat_env`
 
 `.\synPat_env\Scripts\activate`
 
@@ -52,7 +54,7 @@ On windows OS
 
 `cd MathematicalModels`
 
-`python3 model1.py`
+`python model1.py`
 
 - Runtime (On macOS): 16s (model1), 14s (model2), 2min:11s (model3), 1min:33s (model4), 28s (model5), 12min:36s (model5_2D).
 - Runtime (On windows OS): 27s (model1), 1min:54s (model2), 14min:17s (model3), 5min:23s (model4), 27s (model5), 14min:56s (model5_2D).
@@ -65,7 +67,7 @@ This should fix the version incompatibility.)
 
 - <a href="https://github.com/mueller-lab/SyntheticPatterns/tree/main/DataAnalysis/ImageAnalysisMacros"><b>ImageAnalysisMacros </b></a>: The custom ImageJ macro uses the BaSiC plugin for shading correction. Please install FiJi (ImageJ 2.9.0/1.53t) and the plugin as detailed on - https://github.com/marrlab/BaSiC. Then, the macro can be tested with the provided demo dataset. To do so, unzip the demo data file. Run the macro in ImageJ and select the correct inputs when prompted - select directories - `flatField`, `Input`, and `Results` in that order.
 
-- <a href="https://github.com/mueller-lab/SyntheticPatterns/tree/main/DataAnalysis/PythonScripts"><b>PythonScripts </b></a>: Custom Python scripts were used in this study for analysis of 1. diffusion coefficient estimates, 2. fluorescence plate reader assay data, 3. qPCR data, and 4. traveling wave data. The code as well as example input data are provided. To test the code, simply run the respective Python scripts in the directory - for example, run `python3 kymograph_plotting.py` in terminal (with synPat_env active) for testing `kymograph_plotting.py`.
+- <a href="https://github.com/mueller-lab/SyntheticPatterns/tree/main/DataAnalysis/PythonScripts"><b>PythonScripts </b></a>: Custom Python scripts were used in this study for analysis of 1. diffusion coefficient estimates, 2. fluorescence plate reader assay data, 3. qPCR data, and 4. traveling wave data. The code as well as example input data are provided. To test the code, simply run the respective Python scripts in the directory - for example, run `python kymograph_plotting.py` in terminal (with synPat_env active) for testing `kymograph_plotting.py`.
 
 
 
