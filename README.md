@@ -32,7 +32,9 @@ Download the source code as ZIP, unzip and open the directory in the terminal. U
 
 `python3 -m venv synPat_env`
 
-`source synPat_env/bin/activate`
+`source synPat_env/bin/activate` (on macOS)
+
+`. synPat_env/Scripts/activate` (on windows OS)
 
 `pip install -r requirements_synPat_env.txt`
 
